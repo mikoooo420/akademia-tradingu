@@ -7,6 +7,8 @@ import { useHydrated, useHydrationStore } from '@/store/hydrationStore';
 import { useTrackedSymbols } from '@/store/hooks';
 import { useMarketStore } from '@/store/marketStore';
 import { usePortfolioStore } from '@/store/portfolioStore';
+import { useSettingsStore } from '@/store/settingsStore';
+import { setFinnhubKey } from '@/lib/api/market';
 import { toast } from '@/store/toastStore';
 import { Toaster } from '@/components/ui/Toaster';
 
@@ -16,7 +18,11 @@ const POLL_INTERVAL_MS = 15_000;
 function StoreHydrator() {
   const setHydrated = useHydrationStore((s) => s.setHydrated);
   useEffect(() => {
-    Promise.all([usePortfolioStore.persist.rehydrate(), useCourseStore.persist.rehydrate()]).finally(setHydrated);
+    Promise.all([
+      usePortfolioStore.persist.rehydrate(),
+      useCourseStore.persist.rehydrate(),
+      useSettingsStore.persist.rehydrate(),
+    ]).finally(setHydrated);
   }, [setHydrated]);
   return null;
 }
@@ -26,10 +32,18 @@ function MarketPoller() {
   const hydrated = useHydrated();
   const symbols = useTrackedSymbols();
   const refreshQuotes = useMarketStore((s) => s.refreshQuotes);
+  const resetQuotes = useMarketStore((s) => s.resetQuotes);
+  const finnhubKey = useSettingsStore((s) => s.finnhubKey);
+  const previousKey = useRef<string | null>(null);
   const symbolsKey = symbols.join(',');
 
   useEffect(() => {
     if (!hydrated) return;
+    // Zmiana klucza API = zmiana źródła danych: czyścimy stare notowania, by ich nie mieszać
+    setFinnhubKey(finnhubKey);
+    if (previousKey.current !== null && previousKey.current !== finnhubKey) resetQuotes();
+    previousKey.current = finnhubKey;
+
     const list = symbolsKey.split(',').filter(Boolean);
     const refresh = () => {
       if (document.visibilityState === 'visible') void refreshQuotes(list);
@@ -41,7 +55,7 @@ function MarketPoller() {
       window.clearInterval(interval);
       document.removeEventListener('visibilitychange', refresh);
     };
-  }, [hydrated, symbolsKey, refreshQuotes]);
+  }, [hydrated, symbolsKey, refreshQuotes, resetQuotes, finnhubKey]);
 
   return null;
 }

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { RotateCcw, TrendingUp } from 'lucide-react';
+import { KeyRound, RotateCcw, TrendingUp } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { courseProgress } from '@/lib/course/progress';
@@ -12,6 +12,7 @@ import { INITIAL_BALANCE } from '@/lib/trading/engine';
 import { cn } from '@/lib/utils';
 import { useCourseStore } from '@/store/courseStore';
 import { usePortfolioStore } from '@/store/portfolioStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { toast } from '@/store/toastStore';
 import { isActive, NAV_ITEMS } from './navigation';
 
@@ -34,6 +35,7 @@ export function Sidebar() {
   const completedLessons = useCourseStore((s) => s.completedLessons);
   const quizResults = useCourseStore((s) => s.quizResults);
   const resetPortfolio = usePortfolioStore((s) => s.resetPortfolio);
+  const openDataDialog = useSettingsStore((s) => s.openDataDialog);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const progress = courseProgress(completedLessons, quizResults);
 
@@ -72,6 +74,14 @@ export function Sidebar() {
           </div>
           <ProgressBar value={progress} size="sm" />
         </Link>
+        <button
+          type="button"
+          onClick={openDataDialog}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-ink-faint transition-colors hover:bg-bg-hover hover:text-ink-muted"
+        >
+          <KeyRound className="h-3.5 w-3.5" />
+          Źródło notowań
+        </button>
         <button
           type="button"
           onClick={() => setConfirmOpen(true)}

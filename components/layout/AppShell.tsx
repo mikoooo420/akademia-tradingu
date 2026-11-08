@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { useHydrated } from '@/store/hydrationStore';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { DataSettingsDialog } from './DataSettingsDialog';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -33,6 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="mx-auto max-w-[1600px] px-4 pb-28 pt-5 sm:px-6 lg:pb-10">{hydrated ? children : <PageSkeleton />}</main>
       </div>
       <MobileNav />
+      <DataSettingsDialog />
     </div>
   );
 }

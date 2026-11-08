@@ -18,6 +18,8 @@ export interface MarketState {
   trackedSymbols: string[];
 
   refreshQuotes: (symbols: string[]) => Promise<void>;
+  /** Czyści notowania (np. po zmianie klucza API), aby nie mieszać źródeł danych */
+  resetQuotes: () => void;
   upsertQuotes: (quotes: Record<string, Quote>) => void;
   setSelectedSymbol: (symbol: string) => void;
   trackSymbol: (symbol: string) => void;
@@ -25,7 +27,6 @@ export interface MarketState {
 
 function resolveSource(quotes: Quote[]): DataSource {
   if (quotes.some((q) => q.source === 'finnhub')) return 'finnhub';
-  if (quotes.some((q) => q.source === 'yahoo')) return 'yahoo';
   return 'mock';
 }
 
@@ -69,6 +70,8 @@ export const useMarketStore = create<MarketState>()((set, get) => ({
     })();
     return inFlight;
   },
+
+  resetQuotes: () => set({ quotes: {}, previousPrices: {}, source: null, status: 'idle', lastUpdated: null }),
 
   upsertQuotes: (fresh) => {
     const current = get().quotes;

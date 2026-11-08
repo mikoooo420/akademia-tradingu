@@ -120,15 +120,13 @@ export function getMockQuote(symbol: string, now: number = Date.now()): Quote {
 export interface TimeframeConfig {
   intervalMs: number;
   bars: number;
-  yahooRange: string;
-  yahooInterval: string;
 }
 
 export const TIMEFRAME_CONFIG: Record<Timeframe, TimeframeConfig> = {
-  '1D': { intervalMs: 5 * MINUTE, bars: 288, yahooRange: '1d', yahooInterval: '5m' },
-  '1W': { intervalMs: 30 * MINUTE, bars: 336, yahooRange: '5d', yahooInterval: '30m' },
-  '1M': { intervalMs: HOUR, bars: 720, yahooRange: '1mo', yahooInterval: '1h' },
-  '1Y': { intervalMs: DAY, bars: 365, yahooRange: '1y', yahooInterval: '1d' },
+  '1D': { intervalMs: 5 * MINUTE, bars: 288 },
+  '1W': { intervalMs: 30 * MINUTE, bars: 336 },
+  '1M': { intervalMs: HOUR, bars: 720 },
+  '1Y': { intervalMs: DAY, bars: 365 },
 };
 
 export function getMockCandles(symbol: string, timeframe: Timeframe, now: number = Date.now()): Candle[] {

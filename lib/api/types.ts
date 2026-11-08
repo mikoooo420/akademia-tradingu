@@ -1,4 +1,4 @@
-export type DataSource = 'finnhub' | 'yahoo' | 'mock';
+export type DataSource = 'finnhub' | 'mock';
 
 export type Timeframe = '1D' | '1W' | '1M' | '1Y';
 
@@ -43,11 +43,8 @@ export interface CandlesResponse {
   timeframe: Timeframe;
   candles: Candle[];
   source: DataSource;
-}
-
-export interface QuotesResponse {
-  quotes: Record<string, Quote>;
-  source: DataSource;
+  /** Świece symulowane przeskalowane do bieżącej, prawdziwej ceny */
+  anchored?: boolean;
 }
 
 export interface SymbolInfo {

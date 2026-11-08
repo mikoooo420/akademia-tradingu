@@ -7,6 +7,9 @@ interface PageProps {
   params: Promise<{ moduleId: string }>;
 }
 
+// Statyczny eksport: generujemy tylko istniejące moduły, pozostałe adresy kończą się stroną 404
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return COURSE_MODULES.map((mod) => ({ moduleId: mod.id }));
 }

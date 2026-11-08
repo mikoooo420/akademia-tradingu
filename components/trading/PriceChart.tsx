@@ -7,6 +7,7 @@ import { fetchCandles } from '@/lib/api/client';
 import { TIMEFRAME_LABELS, TIMEFRAMES, type Candle, type CandlesResponse, type Timeframe } from '@/lib/api/types';
 import { formatPercent, formatPrice, formatVolume, trendClass } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { useSettingsStore } from '@/store/settingsStore';
 
 type ChartType = 'candles' | 'line';
 type LightweightCharts = typeof import('lightweight-charts');
@@ -47,6 +48,7 @@ export function PriceChart({ symbol, livePrice }: PriceChartProps) {
   const [data, setData] = useState<CandlesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [hovered, setHovered] = useState<Candle | null>(null);
+  const finnhubKey = useSettingsStore((s) => s.finnhubKey);
 
   // 1. Utworzenie wykresu (biblioteka ładowana dynamicznie tylko w przeglądarce)
   useEffect(() => {
@@ -103,7 +105,7 @@ export function PriceChart({ symbol, livePrice }: PriceChartProps) {
     return () => {
       cancelled = true;
     };
-  }, [symbol, timeframe]);
+  }, [symbol, timeframe, finnhubKey]);
 
   // 3. Narysowanie serii danych
   useEffect(() => {
@@ -268,8 +270,7 @@ export function PriceChart({ symbol, livePrice }: PriceChartProps) {
         ) : (
           <span>
             {TIMEFRAME_LABELS[timeframe]}
-            {data?.source === 'mock' && ' · dane symulowane'}
-            {data?.source === 'yahoo' && ' · źródło: Yahoo Finance'}
+            {data && (data.anchored ? ' · wykres poglądowy dopasowany do bieżącej ceny' : ' · dane symulowane')}
           </span>
         )}
       </div>
