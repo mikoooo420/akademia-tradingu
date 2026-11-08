@@ -23,10 +23,22 @@ const COLORS = {
   border: '#232a3b',
 };
 
-/** lightweight-charts wyświetla czas w UTC – przesuwamy znaczniki do strefy czasowej użytkownika. */
+/**
+ * lightweight-charts wyświetla czas w UTC – przesuwamy znaczniki do strefy czasowej użytkownika.
+ * Używamy jednego, bieżącego przesunięcia dla całej serii: przesunięcie liczone osobno dla każdej
+ * świecy dawałoby zduplikowane znaczniki czasu w dniu zmiany czasu (np. 25 października).
+ */
 function toLocalTime(seconds: number): UTCTimestamp {
-  const offsetMinutes = new Date(seconds * 1000).getTimezoneOffset();
-  return (seconds - offsetMinutes * 60) as UTCTimestamp;
+  return (seconds - new Date().getTimezoneOffset() * 60) as UTCTimestamp;
+}
+
+/** Biblioteka wymaga ściśle rosnących znaczników czasu – usuwamy ewentualne duplikaty. */
+function strictlyAscending(candles: Candle[]): Candle[] {
+  const result: Candle[] = [];
+  for (const candle of candles) {
+    if (result.length === 0 || candle.time > result[result.length - 1].time) result.push(candle);
+  }
+  return result;
 }
 
 interface PriceChartProps {
@@ -115,7 +127,7 @@ export function PriceChart({ symbol, livePrice }: PriceChartProps) {
     if (mainSeriesRef.current) chart.removeSeries(mainSeriesRef.current);
     if (volumeSeriesRef.current) chart.removeSeries(volumeSeriesRef.current);
 
-    const candles = data.candles;
+    const candles = strictlyAscending(data.candles);
     lastCandleRef.current = candles.length ? { ...candles[candles.length - 1] } : null;
     const intraday = timeframe === '1D' || timeframe === '1W' || timeframe === '1M';
     chart.applyOptions({ timeScale: { timeVisible: intraday } });
